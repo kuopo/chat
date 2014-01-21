@@ -1,0 +1,17 @@
+body{ background:#fff;color:#000;font-family:"Courier New", Courier, monospace, monospace;font-size:16px; }
+.cmd{ color:#fff; padding:.2em; border-bottom:1px #000 solid}
+.msg{ padding:.2em; border-bottom:1px #000 solid}
+.old{ background-color:#246499;}
+.new{ background-color:#3B9957;}
+.green{ background-color:#3B9957;}
+.blue{ background-color:#246499;}
+.red{ background-color:#992E36;}
+.orange{ background-color:#FF9900;}
+.purple{ background-color:#800080;}
+.black{ background-color:#000000;}
+.darkgray{ background-color:#484848;}
+.gray{ background-color:#808080;}
+.white{ background-color:#FFFFFF;}
+
+
+ACCOUNT { }
