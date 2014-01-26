@@ -1,19 +1,46 @@
-var MSGHUB_PUBSUB_URL = 'https://pubsub.msghub.io';
-
-var myname = prompt("Please enter your name");
+GHUB_PUBSUB_URL = 'https://pubsub.msghub.io';
+var myname = "";
 
 $(document).ready( function() {
-    $("#pub_msg").focus();
-
-    (function show_prompt() {
-        var prompt_msg = htmlspecialchars("[" + (new Date()).toUTCString() + "] " + myname + "> ");
-        $("#prompt").html(prompt_msg);
-        setTimeout(show_prompt, 1000);
-    })();
+    init_name_prompt();    
 });
 
 function htmlspecialchars(str) {
     return ("" + str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;').replace(/ /g, '&nbsp;');
+}
+
+function init_name_prompt() {
+    $("#cmd_line").html(
+        "<span id='prompt' style='display:table-cell;'></span>" +
+        "<span style='display:table-cell; width: 100%'><input id='user_name' type='text' style='width: 100%' onKeyDown='javascript:(function(){if (event.keyCode ==13) { get_name(); init_msg_prompt(); } })()'/></span>"
+    );
+    
+    $("#user_name").focus();
+
+    var prompt_msg = htmlspecialchars("Please enter your name: ");
+    $("#prompt").html(prompt_msg);
+}
+
+function get_name() {
+    myname = document.getElementById('user_name').value;
+}
+
+function init_msg_prompt() {
+    $("#cmd_line").html(
+        "<span id='prompt' style='display:table-cell;'></span>" +
+        "<span style='display:table-cell; width: 100%'><input id='pub_msg' type='text' style='width: 100%' onKeyDown='javascript:(function(){if (event.keyCode ==13) { var msg = get_pub_msg(); send_chat(msg); } })()'/></span>"
+    );
+    
+    var prompt_msg = htmlspecialchars("[" + (new Date()).toUTCString() + "] " + myname + "> ");
+    $("#prompt").html(prompt_msg);
+    $("#pub_msg").focus();
+}
+
+function get_pub_msg() {
+    var msg = document.getElementById('pub_msg').value;
+    $("#pub_msg").val("");
+    
+    return msg;
 }
 
 function addmsg(channel, data, append) {
@@ -21,10 +48,10 @@ function addmsg(channel, data, append) {
     var message = data.message;
     var timestamp = data.timestamp;
     var output = htmlspecialchars("[" + timestamp + "]" + " " + nickname + "> " + message);
-	  
+    
     /* Simple helper to add a div.
-    type is the name of a CSS class (old/new/error).
-    msg is the contents of the div */
+        type is the name of a CSS class (old/new/error).
+        msg is the contents of the div */
     if (append && append == true) {
         $("#messages").append(
             "<div class='msg white'>"+ output +"</div>"
@@ -36,43 +63,13 @@ function addmsg(channel, data, append) {
     }
 }
 
-function send_chat() {
-//    var name = document.getElementById('nickname').value;
+function send_chat(msg) {
     var name = myname;
-    var msg = document.getElementById('pub_msg').value;
     var timestamp = (new Date()).toUTCString();
-
+    
     msghub.publish('chat', {'nickname': name, 'message': msg, 'timestamp': timestamp}, false);
     msghub.save('chat', {'nickname': name, 'message': msg, 'timestamp': timestamp});
 }
-
-function add_log(channel, data) {
-    if (typeof console != "undefined") {
-        console.log(channel, data);
-    }
-}
-
-function ping_delay(channel, data) {
-    if (typeof console != "undefined") {
-        console.log( (new Date()).getTime() - data );
-    }
-}
-
-function ping() {
-    var pingChnl = "ping_" + msghub.socket.socket.sessionid;
-
-    if (!(pingChnl in msghub.callbacks)) msghub.subscribe(pingChnl, ping_delay);
-
-    msghub.publish(pingChnl, (new Date()).getTime(), false);
-}
-
-function add_func(channel, data) {
-    eval.call(window, data);
-}
-
-
-var account = "test";
-var password = "123";
 
 var msghub = new MsgHub(MSGHUB_PUBSUB_URL);
 
@@ -103,7 +100,4 @@ msghub.erase('chat', {"timeframe": {"max": current - timezone_offset - one_week}
 });
 
 msghub.subscribe('chat', addmsg);
-msghub.subscribe('log', add_log);
-msghub.subscribe('func', add_func);
 
-$("ACCOUNT").text(account);
